@@ -1,0 +1,3 @@
+{%- from "aptly/map.jinja" import api with context %}
+LISTEN_HOST={{ api.bind.host }}
+LISTEN_PORT={{ api.bind.port }}

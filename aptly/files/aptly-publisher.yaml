@@ -1,0 +1,24 @@
+{%- from "aptly/map.jinja" import server with context %}
+{%- if server.repo %}
+repo:
+{%- for repo_name, repo in server.repo.iteritems() %}
+  {{ repo_name }}:
+    component: {{ repo.publisher.component }}
+    distributions:
+      {%- for distribution in repo.publisher.distributions %}
+      - {{ distribution }}
+      {%- endfor %}
+{%- endfor %}
+{%- endif %}
+
+{%- if server.mirror %}
+mirror:
+{%- for mirror_name, mirror in server.mirror.iteritems() %}
+  {{ mirror_name }}:
+    component: {{ mirror.publisher.component }}
+    distributions:
+      {%- for distribution in mirror.publisher.distributions %}
+      - {{ distribution }}
+      {%- endfor %}
+{%- endfor %}
+{%- endif %}

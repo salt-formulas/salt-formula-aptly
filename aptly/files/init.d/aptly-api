@@ -1,0 +1,80 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:		aptly-api
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:
+# Short-Description:	Aptly API server
+### END INIT INFO
+
+set -e
+
+# /etc/init.d/aptly-api: start and stop Aptly API
+
+[ -f /etc/default/aptly-api ] && . /etc/default/aptly-api
+
+. /lib/lsb/init-functions
+
+COMMAND=${COMMAND:-"/usr/bin/aptly"}
+COMMAND_ARGS=${COMMAND_ARGS:-"api serve"}
+LISTEN_HOST=${LISTEN_HOST:-"127.0.0.1"}
+LISTEN_PORT=${LISTEN_PORT:-"8080"}
+
+APTLY_USER=${APTLY_USER:-aptly}
+PIDFILE=${PIDFILE:-/var/run/aptly-api.pid}
+
+function check_running() {
+	start-stop-daemon -T --pidfile ${PIDFILE}
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		log_end_msg 1 || true
+		exit $ret
+	fi
+}
+
+function start() {
+	# Get slave.jar from master
+	if start-stop-daemon -c ${APTLY_USER} --background --start --quiet \
+		--oknodo -m --pidfile ${PIDFILE} --exec ${COMMAND} -- ${COMMAND_ARGS} \
+		-listen=${LISTEN_HOST}:${LISTEN_PORT}; then
+		log_end_msg 0 || true
+	else
+		log_end_msg 1 || true
+	fi
+}
+
+function stop() {
+	if start-stop-daemon --stop --quiet --oknodo --pidfile ${PIDFILE}; then
+		log_end_msg 0 || true
+	else
+		log_end_msg 1 || true
+	fi
+}
+
+case "$1" in
+	start)
+		log_daemon_msg "Starting Aptly API" "aptly-api" || true
+		start
+		;;
+	stop)
+		log_daemon_msg "Stopping Aptly API" "aptly-api" || true
+		stop
+		;;
+	status)
+		status_of_proc -p ${PIDFILE} ${COMMAND} aptly-api && exit 0 || exit $?
+		;;
+	restart)
+		log_daemon_msg "Restarting Aptly API" "aptly-api" || true
+		stop
+		start
+		;;
+
+	*)
+		log_action_msg "Usage: /etc/init.d/aptly-api {start|stop|restart|status}" || true
+		exit 1
+		;;
+esac
+
+exit 0

@@ -1,0 +1,15 @@
+
+{%- set server = salt['grains.filter_by']({
+  'Debian': {
+    'pkgs': ['aptly', 'bzip2'],
+    'home_dir': '/var/lib/aptly',
+    'root_dir': '/srv/aptly',
+    'secure': True,
+    'repo': {},
+    'gpg_keypair_id': '',
+    'gpg_passphrase': ''
+  },
+}, merge=salt['pillar.get']('aptly:server')) %}
+
+{%- set api=salt['pillar.get']('aptly:api') %}
+{%- set publisher=salt['pillar.get']('aptly:publisher') %}

@@ -1,0 +1,6 @@
+applications:
+- aptly.publisher
+parameters:
+  aptly:
+    publisher:
+      enabled: true
