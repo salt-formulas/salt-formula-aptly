@@ -1,0 +1,19 @@
+doc:
+  name: Aptly
+  description: Aptly produces a fixed set of packages in the repository, so that package installation and upgrade becomes deterministic.
+  role:
+  {%- if pillar.aptly.server is defined %}
+    server:
+      name: server
+      param:
+  {%- endif %}
+  {%- if pillar.aptly.api is defined %}
+    api:
+      name: api
+      param: {}
+  {%- endif %}
+  {%- if pillar.aptly.publisher is defined %}
+    publisher:
+      name: publisher
+      param: {}
+  {%- endif %}
