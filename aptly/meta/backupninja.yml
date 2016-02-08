@@ -1,0 +1,7 @@
+{%- from "aptly/map.jinja" import server with context -%}
+backup:
+  aptly:
+    fs_includes:
+    - {{ server.root_dir }}/pool
+    - {{ server.root_dir }}/db
+    fs_excludes: []

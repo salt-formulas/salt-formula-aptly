@@ -1,6 +1,8 @@
 parameters:
   aptly:
     _support:
+      backupninja:
+        enabled: true
       collectd:
         enabled: false
       heka:
