@@ -4,7 +4,7 @@
 
 aptly_mirror_update_cron:
   cron.present:
-  - name: service aptly-api stop;sleep 5;su aptly -c '/usr/local/bin/aptly_mirror_update.sh -s';service aptly-api start
+  - name: "service aptly-api stop >/dev/null;sleep 5;su aptly -c '/usr/local/bin/aptly_mirror_update.sh -s';service aptly-api start >/dev/null"
   - identifier: aptly_mirror_update
   - hour: "{{ server.mirror_update.hour }}"
   - minute: "{{ server.mirror_update.minute }}"
