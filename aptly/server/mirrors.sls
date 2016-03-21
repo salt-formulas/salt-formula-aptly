@@ -59,7 +59,7 @@ aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
 
 aptly_{{ mirror_name }}_mirror:
   cmd.run:
-  - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true{% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
+  - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
   - user: aptly
   - unless: aptly mirror show {{ mirror_name }}
 
