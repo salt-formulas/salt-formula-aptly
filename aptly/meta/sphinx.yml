@@ -6,11 +6,11 @@ doc:
     server:
       name: server
       param:
-  {%- endif %}
-  {%- if pillar.aptly.api is defined %}
+    {%- if pillar.aptly.server.api is defined %}
     api:
       name: api
       param: {}
+    {%- endif %}
   {%- endif %}
   {%- if pillar.aptly.publisher is defined %}
     publisher:

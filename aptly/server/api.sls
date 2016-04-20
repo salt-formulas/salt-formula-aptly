@@ -1,5 +1,5 @@
-{%- from "aptly/map.jinja" import api with context %}
-{%- if api.enabled %}
+{%- from "aptly/map.jinja" import server with context %}
+{%- if server.api.enabled %}
 
 include:
   - aptly.server
