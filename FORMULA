@@ -1,0 +1,8 @@
+name: aptly
+os: Debian
+os_family: Debian
+version: 201606
+release: 1
+summary: Aptly Salt formula
+description: Install and configure Aptly server and relay.
+top_level_dir: aptly
