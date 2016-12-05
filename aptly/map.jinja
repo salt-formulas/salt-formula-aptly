@@ -11,4 +11,11 @@
   },
 }, merge=salt['pillar.get']('aptly:server')) %}
 
-{%- set publisher=salt['pillar.get']('aptly:publisher') %}
+{%- set publisher = salt['grains.filter_by']({
+  'default': {
+    'source' {
+      'engine': 'pkg',
+      'pkgs': ['aptly-publisher'],
+    },
+  },
+}, merge=salt['pillar.get']('aptly:publisher')) %}
