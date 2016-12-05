@@ -1,0 +1,13 @@
+[Unit]
+Description=Aptly API server
+Requires=network-online.target
+After=network.target
+
+[Service]
+User=aptly
+EnvironmentFile=/etc/default/aptly-api
+ExecStart=/usr/bin/aptly api serve -listen=${LISTEN_HOST}:${LISTEN_PORT}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

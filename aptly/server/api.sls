@@ -4,7 +4,17 @@
 include:
   - aptly.server
 
-aptly_api_init_script:
+{%- if grains.init == 'systemd' %}
+aptly_api_service_file:
+  file.managed:
+    - name: /etc/systemd/system/aptly-api.service
+    - source: salt://aptly/files/aptly-api.service
+    - user: root
+    - group: root
+    - require:
+      - pkg: aptly_packages
+{%- else %}
+aptly_api_service_file:
   file.managed:
     - name: /etc/init.d/aptly-api
     - source: salt://aptly/files/init.d/aptly-api
@@ -14,6 +24,7 @@ aptly_api_init_script:
     - template: jinja
     - require:
       - pkg: aptly_packages
+{%- endif %}
 
 aptly_api_config:
   file.managed:
@@ -28,7 +39,7 @@ aptly_api_service:
   service.running:
   - name: aptly-api
   - watch:
-    - file: aptly_api_init_script
+    - file: aptly_api_service_file
     - file: aptly_api_config
     - file: aptly_conf
     - pkg: aptly_packages
