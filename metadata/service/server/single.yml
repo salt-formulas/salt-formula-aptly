@@ -6,7 +6,8 @@ parameters:
   aptly:
     server:
       enabled: true
-      gpg_passphrase: ${_param:aptly_gpg_passphrase}
+      gpg:
+        passphrase: ${_param:aptly_gpg_passphrase}
       mirror_update:
         enabled: true
         hour: '*/12'

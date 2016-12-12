@@ -32,18 +32,17 @@ aptly_mirror_update_cron:
 
 {%- for mirror_name, mirror in server.mirror.iteritems() %}
 
-{%- for gpgkey in server.mirror[mirror_name].gpgkeys %}
+{%- for gpgkey in mirror.get('gpgkeys', []) %}
 
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   cmd.run:
-  - name: gpg --no-tty --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys {{ gpgkey }}
+  - name: gpg --no-tty --no-default-keyring --keyring {{ server.gpg.keyring }} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
   - user: aptly
-  - unless: gpg --no-tty --no-default-keyring --keyring trustedkeys.gpg --list-public-keys {{gpgkey}}
+  - unless: gpg --no-tty --no-default-keyring --keyring {{ server.gpg.keyring }} --list-public-keys {{gpgkey}}
 
 {%- endfor %}
 
-{%- if server.mirror[mirror_name].snapshots is defined %}
-{%- for snapshot in server.mirror[mirror_name].snapshots %}
+{%- for snapshot in mirror.get('snapshots', []) %}
 
 aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
   cmd.run:
@@ -54,8 +53,6 @@ aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
     - cmd: aptly_{{ mirror_name }}_update
 
 {%- endfor %}
-{%- endif %}
-
 
 aptly_{{ mirror_name }}_mirror:
   cmd.run:
@@ -63,7 +60,7 @@ aptly_{{ mirror_name }}_mirror:
   - user: aptly
   - unless: aptly mirror show {{ mirror_name }}
 
-{%- if mirror.update is defined and mirror.update == True %}
+{%- if mirror.get('update', False) == True %}
 aptly_{{ mirror_name }}_update:
   cmd.run:
   - name: aptly mirror update {{ mirror_name }}
@@ -72,7 +69,7 @@ aptly_{{ mirror_name }}_update:
     - cmd: aptly_{{ mirror_name }}_mirror
 {%- endif %}
 
-{%- if server.mirror[mirror_name].publish is defined %}
+{%- if mirror.publish is defined %}
 aptly_publish_{{ server.mirror[mirror_name].publish }}_snapshot:
   cmd.run:
   - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg_keypair_id }}' -passphrase='{{ server.gpg_passphrase }}' {{ server.mirror[mirror_name].publish }}
