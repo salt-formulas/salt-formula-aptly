@@ -12,7 +12,7 @@ aptly_api_service_file:
     - user: root
     - group: root
     - require:
-      - pkg: aptly_packages
+      - cmd: aptly_installed
 {%- else %}
 aptly_api_service_file:
   file.managed:
@@ -23,7 +23,7 @@ aptly_api_service_file:
     - mode: 755
     - template: jinja
     - require:
-      - pkg: aptly_packages
+      - cmd: aptly_installed
 {%- endif %}
 
 aptly_api_config:
@@ -42,6 +42,6 @@ aptly_api_service:
     - file: aptly_api_service_file
     - file: aptly_api_config
     - file: aptly_conf
-    - pkg: aptly_packages
+    - cmd: aptly_installed
 
 {%- endif %}

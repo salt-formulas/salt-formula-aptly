@@ -1,7 +1,10 @@
 
 {%- set server = salt['grains.filter_by']({
   'Debian': {
-    'pkgs': ['aptly', 'bzip2'],
+    'source': {
+      'engine': 'pkg',
+      'pkgs': ['aptly', 'bzip2'],
+    },
     'home_dir': '/var/lib/aptly',
     'root_dir': '/srv/aptly',
     'secure': True,

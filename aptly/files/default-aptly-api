@@ -1,3 +1,8 @@
 {%- from "aptly/map.jinja" import server with context %}
+{%- if server.source.engine == 'docker' %}
+COMMAND=/usr/local/bin/aptly
+{%- else %}
+COMMAND=/usr/bin/aptly
+{%- endif %}
 LISTEN_HOST={{ server.api.bind.host }}
 LISTEN_PORT={{ server.api.bind.port }}

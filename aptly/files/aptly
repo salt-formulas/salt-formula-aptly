@@ -1,0 +1,59 @@
+#!/bin/bash
+# =================================================
+# This file is managed by SaltStack aptly formula.
+# Manual changes may be overwritten.
+# =================================================
+#
+# Run aptly in a container
+#
+# This script will attempt to mirror the host paths by using volumes for the
+# following paths:
+#   * {{ aptly_home }}
+#   * {{ aptly_root }}
+#   * /etc/aptly-conf (read only)
+#   * $(pwd) (read-only)
+#   * $HOME if it's set (read-only)
+#
+# You can add additional volumes (or any docker run options) using
+# the $APTLY_OPTIONS environment variable.
+#
+
+
+set -e
+
+IMAGE=${IMAGE:-"{{ image }}"}
+APTLY_HOME=${APTLY_HOME:-"{{ aptly_home }}"}
+APTLY_ROOT=${APTLY_ROOT:-"{{ aptly_root }}"}
+
+id -u aptly && APTLY_ENV="${APTLY_ENV} -e LOCAL_USER_ID=$(id -u aptly)" || true
+
+# Setup volume mounts for compose config and context
+if [ "$(pwd)" != '/' ]; then
+    VOLUMES="-v $(pwd):$(pwd):ro"
+fi
+
+if [ -e /etc/aptly.conf ]; then
+    VOLUMES="-v /etc/aptly.conf:/etc/aptly.conf:ro"
+fi
+
+if [ -d "$APTLY_HOME" ]; then
+    VOLUMES="-v $APTLY_HOME:$APTLY_HOME"
+fi
+
+if [ -d "$APTLY_ROOT" ]; then
+    VOLUMES="-v $APTLY_ROOT:$APTLY_ROOT"
+fi
+
+if [ -n "$HOME" ]; then
+    VOLUMES="$VOLUMES -v $HOME:$HOME:ro"
+fi
+
+# Only allocate tty if we detect one
+if [ -t 1 ]; then
+    DOCKER_RUN_OPTIONS="-t"
+fi
+if [ -t 0 ]; then
+    DOCKER_RUN_OPTIONS="$DOCKER_RUN_OPTIONS -i"
+fi
+
+exec docker run --rm $DOCKER_RUN_OPTIONS $APTLY_OPTIONS $APTLY_ENV $VOLUMES -w "$(pwd)" $IMAGE "$@"

@@ -8,10 +8,45 @@ include:
 - aptly.server.repos
 - aptly.server.mirrors
 
+{%- if server.source.engine == 'pkg' %}
+
 aptly_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
   - refresh: true
+
+aptly_installed:
+  cmd.wait:
+    - name: "aptly version"
+    - watch:
+      - file: aptly_packages
+    - require:
+      - user: aptly_user
+
+{%- elif publisher.source.engine == 'docker' %}
+
+aptly_wrapper:
+  file.managed:
+    - name: /usr/local/bin/aptly
+    - source: salt://docker/files/aptly
+    - template: jinja
+    - defaults:
+        image: {{ client.compose.source.image|default('tcpcloud/aptly') }}
+        aptly_home: {{ server.home_dir }}
+        aptly_root: {{ server.root_dir }}
+    - mode: 755
+
+aptly_installed:
+  cmd.wait:
+    - name: "/usr/local/bin/aptly version"
+    - watch:
+      - file: aptly_wrapper
+    - require:
+      - user: aptly_user
+      - file: aptly_root_dir
+      - file: aptly_home_dir
+
+{%- endif %}
 
 aptly_user:
   user.present:
@@ -19,7 +54,7 @@ aptly_user:
   - shell: /bin/bash
   - home: {{ server.home_dir }}
   - require:
-    - pkg: aptly_packages
+    - cmd: aptly_installed
 
 aptly_home_dir:
   file.directory:
@@ -113,6 +148,8 @@ import_gpg_priv_key:
   - unless: gpg --no-tty --list-secret-keys | grep '{{ server.gpg_keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
+  - require_in:
+    - cmd: aptly_installed
 
 {%- endif %}
 
