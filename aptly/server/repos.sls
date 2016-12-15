@@ -6,7 +6,9 @@ aptly_{{ repo_name }}_repo_create:
   cmd.run:
   - name: aptly repo create -distribution="{{ repo.distribution }}" -component="{{ repo.component }}" -architectures="{{ repo.architectures }}" -comment="{{ repo.comment }}" {{ repo_name }}
   - unless: aptly repo show {{ repo_name }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
   - require:
     - file: aptly_conf
 
@@ -22,7 +24,9 @@ pkgdir:
 aptly_{{ repo_name }}_pkgs_add:
   cmd.run:
   - name: aptly repo add {{ repo_name }} {{ repo.pkg_dir }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
   - require:
     - cmd: aptly_{{ repo_name }}_repo_create
     - file: pkgdir
@@ -32,9 +36,11 @@ aptly_{{ repo_name }}_pkgs_add:
 {%- if repo.publish is defined and repo.publish == True %}
 aptly_{{ repo_name }}_repo_publish:
   cmd.run:
-  - name: aptly publish repo -batch=true -gpg-key='{{ server.gpg_keypair_id }}' -passphrase='{{ server.gpg_passphrase }}' {{ repo_name }}
+  - name: aptly publish repo -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ repo_name }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
-  - unless: aptly publish update -batch=true -gpg-key='{{ server.gpg_keypair_id }}' -passphrase='{{ server.gpg_passphrase }}' {{ repo.distribution }}
+  {%- endif %}
+  - unless: aptly publish update -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ repo.distribution }}
 {%- endif %}
 
 {%- endfor %}

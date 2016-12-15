@@ -37,7 +37,9 @@ aptly_mirror_update_cron:
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   cmd.run:
   - name: gpg --no-tty --no-default-keyring --keyring {{ server.gpg.keyring }} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
   - unless: gpg --no-tty --no-default-keyring --keyring {{ server.gpg.keyring }} --list-public-keys {{gpgkey}}
 
 {%- endfor %}
@@ -47,7 +49,9 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
 aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
   cmd.run:
   - name: aptly snapshot create {{ snapshot }} from mirror {{ mirror_name }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
   - unless: aptly snapshot show {{ snapshot }}
   - require:
     - cmd: aptly_{{ mirror_name }}_update
@@ -57,14 +61,18 @@ aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
 aptly_{{ mirror_name }}_mirror:
   cmd.run:
   - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
   - unless: aptly mirror show {{ mirror_name }}
 
 {%- if mirror.get('update', False) == True %}
 aptly_{{ mirror_name }}_update:
   cmd.run:
   - name: aptly mirror update {{ mirror_name }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
   - require:
     - cmd: aptly_{{ mirror_name }}_mirror
 {%- endif %}
@@ -72,8 +80,10 @@ aptly_{{ mirror_name }}_update:
 {%- if mirror.publish is defined %}
 aptly_publish_{{ server.mirror[mirror_name].publish }}_snapshot:
   cmd.run:
-  - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg_keypair_id }}' -passphrase='{{ server.gpg_passphrase }}' {{ server.mirror[mirror_name].publish }}
+  - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ server.mirror[mirror_name].publish }}
+  {%- if server.source.engine != "docker" %}
   - user: aptly
+  {%- endif %}
 {% endif %}
 
 {%- endfor %}

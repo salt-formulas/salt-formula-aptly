@@ -24,10 +24,10 @@ publisher_installed:
 publisher_wrapper:
   file.managed:
     - name: /usr/local/bin/aptly-publisher
-    - source: salt://docker/files/aptly-publisher
+    - source: salt://aptly/files/aptly-publisher
     - template: jinja
     - defaults:
-        image: {{ client.compose.source.image|default('tcpcloud/aptly-publisher') }}
+        image: {{ publisher.source.image|default('tcpcloud/aptly-publisher') }}
     - mode: 755
 
 publisher_installed:

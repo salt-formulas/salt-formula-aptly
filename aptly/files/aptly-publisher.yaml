@@ -1,5 +1,5 @@
 {%- from "aptly/map.jinja" import server with context %}
-{%- if server.repo %}
+{%- if server.repo is defined %}
 repo:
 {%- for repo_name, repo in server.repo.iteritems() %}
   {{ repo_name }}:
@@ -11,7 +11,7 @@ repo:
 {%- endfor %}
 {%- endif %}
 
-{%- if server.mirror %}
+{%- if server.mirror is defined %}
 mirror:
 {%- for mirror_name, mirror in server.mirror.iteritems() %}
   {{ mirror_name }}:

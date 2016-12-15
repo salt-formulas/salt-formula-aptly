@@ -10,21 +10,17 @@
     'secure': True,
     'repo': {},
     'gpg': {
-      'keypair_id': '',
-      'passphrase': '',
+      'keypair_id': pillar.aptly.server.gpg_keypair_id|default(''),
+      'passphrase': pillar.aptly.server.gpg_passphrase|default(''),
       'keyring': 'trustedkeys.gpg',
       'keyserver': 'keys.gnupg.net',
     },
+    'user': {
+      'name': 'aptly',
+      'group': 'aptly',
+    },
   },
 }, merge=salt['pillar.get']('aptly:server')) %}
-
-{# Backward compatibility #}
-{%- if server.gpg_keypair_id is defined %}
-{%- do server.update({'gpg': {'keypair_id': server.gpg_keypair_id}}) %}
-{%- endif %}
-{%- if server.gpg_passphrase is defined %}
-{%- do server.update({'gpg': {'passphrase': server.gpg_passphrase}}) %}
-{%- endif %}
 
 {%- set publisher = salt['grains.filter_by']({
   'default': {

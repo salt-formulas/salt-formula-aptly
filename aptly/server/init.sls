@@ -14,6 +14,8 @@ aptly_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
   - refresh: true
+  - require_in:
+    - user: aptly_user
 
 aptly_installed:
   cmd.wait:
@@ -23,15 +25,15 @@ aptly_installed:
     - require:
       - user: aptly_user
 
-{%- elif publisher.source.engine == 'docker' %}
+{%- elif server.source.engine == 'docker' %}
 
 aptly_wrapper:
   file.managed:
     - name: /usr/local/bin/aptly
-    - source: salt://docker/files/aptly
+    - source: salt://aptly/files/aptly
     - template: jinja
     - defaults:
-        image: {{ client.compose.source.image|default('tcpcloud/aptly') }}
+        image: {{ server.source.image|default('tcpcloud/aptly') }}
         aptly_home: {{ server.home_dir }}
         aptly_root: {{ server.root_dir }}
     - mode: 755
@@ -50,11 +52,28 @@ aptly_installed:
 
 aptly_user:
   user.present:
-  - name: aptly
-  - shell: /bin/bash
+  - name: {{ server.user.name }}
   - home: {{ server.home_dir }}
-  - require:
-    - cmd: aptly_installed
+  - shell: /bin/bash
+  {%- if server.user.uid is defined %}
+  - uid: {{ server.user.uid }}
+  {%- endif %}
+  {%- if server.user.gid is defined %}
+  - gid: {{ server.user.gid }}
+  {%- endif %}
+  - system: True
+  - groups:
+    - aptly
+
+aptly_group:
+  group.present:
+  - name: {{ server.user.group }}
+  {%- if server.user.gid is defined %}
+  - gid: {{ server.user.gid }}
+  {%- endif %}
+  - system: True
+  - require_in:
+    - user: aptly_user
 
 aptly_home_dir:
   file.directory:
@@ -82,6 +101,11 @@ aptly_pub_dir:
   - require:
     - file: aptly_home_dir
 
+{%- if server.no_config|default(False) == True %}
+aptly_conf:
+  file.directory:
+    - name: {{ server.home_dir }}
+{%- else %}
 aptly_conf:
   file.managed:
   - name: {{ server.home_dir }}/.aptly.conf
@@ -92,6 +116,7 @@ aptly_conf:
   - mode: 664
   - require:
     - file: aptly_pub_dir
+{%- endif %}
 
 aptly_mirror_update_script:
   file.managed:
@@ -116,7 +141,7 @@ aptly_gpg_key_dir:
 gpg_priv_key:
   file.managed:
   - name: {{ gpgprivfile }}
-  - contents_pillar: aptly:server:gpg_private_key
+  - contents: {{ server.gpg.private_key|yaml }}
   - user: aptly
   - group: aptly
   - mode: 600
@@ -126,7 +151,7 @@ gpg_priv_key:
 gpg_pub_key:
   file.managed:
   - name: {{ gpgpubfile }}
-  - contents_pillar: aptly:server:gpg_public_key
+  - contents: {{ server.gpg.public_key|yaml }}
   - user: aptly
   - group: aptly
   - mode: 644
@@ -137,7 +162,7 @@ import_gpg_pub_key:
   cmd.run:
   - name: gpg --no-tty --import {{ gpgpubfile }}
   - user: aptly
-  - unless: gpg --no-tty --list-keys | grep '{{ server.gpg_keypair_id }}'
+  - unless: gpg --no-tty --list-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
 
@@ -145,7 +170,7 @@ import_gpg_priv_key:
   cmd.run:
   - name: gpg --no-tty --allow-secret-key-import --import {{ gpgprivfile }}
   - user: aptly
-  - unless: gpg --no-tty --list-secret-keys | grep '{{ server.gpg_keypair_id }}'
+  - unless: gpg --no-tty --list-secret-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
   - require_in:
