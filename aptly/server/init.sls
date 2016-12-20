@@ -12,7 +12,7 @@ include:
 
 aptly_packages:
   pkg.installed:
-  - names: {{ server.pkgs }}
+  - names: {{ server.source.pkgs }}
   - refresh: true
   - require_in:
     - user: aptly_user
