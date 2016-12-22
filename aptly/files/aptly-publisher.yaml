@@ -9,6 +9,8 @@ repo:
       - {{ distribution }}
       {%- endfor %}
 {%- endfor %}
+{%- else %}
+repo: {}
 {%- endif %}
 
 {%- if server.mirror is defined %}
@@ -21,4 +23,6 @@ mirror:
       - {{ distribution }}
       {%- endfor %}
 {%- endfor %}
+{%- else %}
+mirror: {}
 {%- endif %}
