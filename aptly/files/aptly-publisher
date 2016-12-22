@@ -8,7 +8,7 @@
 #
 # This script will attempt to mirror the host paths by using volumes for the
 # following paths:
-#   * /etc/aptly-publisher.yaml
+#   * /etc/aptly-publisher.conf
 #   * /etc/aptly
 #   * $(pwd)
 #   * $HOME if it's set
@@ -38,8 +38,8 @@ if [ "$(pwd)" != '/' ]; then
     VOLUMES="-v $(pwd):$(pwd):ro"
 fi
 
-if [ -e /etc/aptly-publisher.yaml ]; then
-    VOLUMES="-v /etc/aptly-publisher.yaml:/etc/aptly-publisher.yaml:ro"
+if [ -e /etc/aptly-publisher.conf ]; then
+    VOLUMES="-v /etc/aptly-publisher.conf:/etc/aptly-publisher.conf:ro"
 fi
 
 if [ -d /etc/aptly ]; then
