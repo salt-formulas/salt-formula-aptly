@@ -21,7 +21,7 @@ aptly_installed:
   cmd.wait:
     - name: "aptly version"
     - watch:
-      - file: aptly_packages
+      - pkg: aptly_packages
     - require:
       - user: aptly_user
 
