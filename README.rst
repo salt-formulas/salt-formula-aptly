@@ -80,6 +80,7 @@ Example pillar
              component: main
              architectures: amd64
              comment: "Custom components"
+             sources: false
              publisher:
                component: mycomponent
                distributions:
