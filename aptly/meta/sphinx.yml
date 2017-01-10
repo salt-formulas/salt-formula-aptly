@@ -34,7 +34,7 @@ doc:
         mirrors:
           value:
             {%- for name, mirror in server.mirror.iteritems() %}
-            {{ name }}: "(distribution: {{ mirror.distribution }}, component: {{ mirror.component }})"
+            {{ name }}: "(distribution: {{ mirror.distribution }}, components: {{ mirror.components }})"
             {%- endfor %}
         {%- endif %}
   {%- endif %}
