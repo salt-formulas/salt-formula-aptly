@@ -8,6 +8,12 @@ repo:
       {%- for distribution in repo.publisher.distributions %}
       - {{ distribution }}
       {%- endfor %}
+    {%- if repo.publisher.architectures is defined %}
+    architectures:
+      {%- for arch in repo.publisher.architectures %}
+      - {{ arch }}
+      {%- endfor %}
+    {%- endif %}
 {%- endfor %}
 {%- else %}
 repo: {}
@@ -22,6 +28,12 @@ mirror:
       {%- for distribution in mirror.publisher.distributions %}
       - {{ distribution }}
       {%- endfor %}
+    {%- if repo.publisher.architectures is defined %}
+    architectures:
+      {%- for arch in repo.publisher.architectures %}
+      - {{ arch }}
+      {%- endfor %}
+    {%- endif %}
 {%- endfor %}
 {%- else %}
 mirror: {}
