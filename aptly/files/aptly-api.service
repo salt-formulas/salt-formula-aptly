@@ -1,3 +1,9 @@
+{%- from "aptly/map.jinja" import server with context -%}
+{%- if server.source.engine == 'docker' -%}
+    {%- set command="/usr/local/bin/aptly" -%}
+{%- else -%}
+    {%- set command="/usr/bin/aptly" -%}
+{%- endif -%}
 [Unit]
 Description=Aptly API server
 Requires=network-online.target
@@ -6,7 +12,7 @@ After=network.target
 [Service]
 User=aptly
 EnvironmentFile=/etc/default/aptly-api
-ExecStart=${COMMAND} api serve -listen=${LISTEN_HOST}:${LISTEN_PORT}
+ExecStart={{ command }} api serve -listen=${LISTEN_HOST}:${LISTEN_PORT}
 Restart=on-failure
 
 [Install]

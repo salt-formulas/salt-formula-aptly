@@ -9,6 +9,7 @@ aptly_api_service_file:
   file.managed:
     - name: /etc/systemd/system/aptly-api.service
     - source: salt://aptly/files/aptly-api.service
+    - template: jinja
     - user: root
     - group: root
     - require:
