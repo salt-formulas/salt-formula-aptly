@@ -38,7 +38,7 @@ function start() {
 	# Get slave.jar from master
 	if start-stop-daemon -c ${APTLY_USER} --background --start --quiet \
 		--oknodo -m --pidfile ${PIDFILE} --exec ${COMMAND} -- ${COMMAND_ARGS} \
-		-listen=${LISTEN_HOST}:${LISTEN_PORT}; then
+		-listen=${LISTEN_HOST}:${LISTEN_PORT} -no-lock; then
 		log_end_msg 0 || true
 	else
 		log_end_msg 1 || true
