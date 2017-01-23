@@ -178,14 +178,5 @@ import_gpg_priv_key:
 
 {%- endif %}
 
-{#
-  FIXME: Hack to be able to use aptly commands when API server is running
-  https://github.com/smira/aptly/issues/234
-
-aptly_clean_lock:
-  file.absent:
-    - name: /srv/aptly/db/LOCK
-#}
-
 {%- endif %}
 

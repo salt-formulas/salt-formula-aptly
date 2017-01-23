@@ -28,9 +28,9 @@ mirror:
       {%- for distribution in mirror.publisher.distributions %}
       - {{ distribution }}
       {%- endfor %}
-    {%- if repo.publisher.architectures is defined %}
+    {%- if mirror.publisher.architectures is defined %}
     architectures:
-      {%- for arch in repo.publisher.architectures %}
+      {%- for arch in mirror.publisher.architectures %}
       - {{ arch }}
       {%- endfor %}
     {%- endif %}
