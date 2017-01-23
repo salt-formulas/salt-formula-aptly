@@ -12,7 +12,8 @@
     'gpg': {
       'keypair_id': pillar.aptly.server.gpg_keypair_id|default(''),
       'passphrase': pillar.aptly.server.gpg_passphrase|default(''),
-      'keyring': 'trustedkeys.gpg',
+      'keyring': '.gnupg/trustedkeys.gpg',
+      'homedir': '.gnupg',
       'keyserver': 'keys.gnupg.net',
     },
     'user': {
