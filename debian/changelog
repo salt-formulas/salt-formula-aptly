@@ -1,3 +1,9 @@
+salt-formula-aptly (2017.2) trusty; urgency=medium
+
+  * New version
+
+ -- Filip Pytloun <filip.pytloun@tcpcloud.eu>  Thu, 02 Feb 2017 13:22:16 +0100
+
 salt-formula-aptly (0.2) trusty; urgency=medium
 
   * First public release
