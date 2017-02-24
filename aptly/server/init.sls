@@ -165,6 +165,7 @@ import_gpg_pub_key:
   - unless: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --list-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
+    - file: gpg_pub_key
 
 import_gpg_priv_key:
   cmd.run:
@@ -173,6 +174,7 @@ import_gpg_priv_key:
   - unless: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --list-secret-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
+    - file: gpg_priv_key
   - require_in:
     - cmd: aptly_installed
 
