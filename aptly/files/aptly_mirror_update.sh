@@ -23,7 +23,7 @@ if [[ "$*" == *--snapshot* || "$*" == *-s* ]]; then
 	SNAPSHOT=1
 fi
 
-MIRRORS=$(aptly mirror list --raw 2>&1)
+MIRRORS=$(aptly mirror list 2>&1 | awk -F "]:" '/*/ { print substr($1,5)}')
 if [[ $? -ne 0 ]]; then
 	log_error "$MIRRORS"
 	exit 1
