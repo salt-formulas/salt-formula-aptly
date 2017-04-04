@@ -3,7 +3,7 @@
   'Debian': {
     'source': {
       'engine': 'pkg',
-      'pkgs': ['aptly', 'bzip2'],
+      'pkgs': ['aptly', 'bzip2', 'cron'],
     },
     'home_dir': '/var/lib/aptly',
     'root_dir': '/srv/aptly',
@@ -12,6 +12,8 @@
     'gpg': {
       'keypair_id': pillar.aptly.server.gpg_keypair_id|default(''),
       'passphrase': pillar.aptly.server.gpg_passphrase|default(''),
+      'public_key': pillar.aptly.server.gpg_public_key|default(''),
+      'private_key': pillar.aptly.server.gpg_private_key|default(''),
       'keyring': '.gnupg/trustedkeys.gpg',
       'homedir': '.gnupg',
       'keyserver': 'keys.gnupg.net',

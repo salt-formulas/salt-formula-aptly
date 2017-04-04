@@ -99,7 +99,7 @@ aptly_pub_dir:
   - user: aptly
   - group: aptly
   - require:
-    - file: aptly_home_dir
+    - file: aptly_root_dir
 
 {%- if server.no_config|default(False) == True %}
 aptly_conf:
