@@ -52,6 +52,8 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   - require:
     - cmd: import_gpg_priv_key
     - cmd: import_gpg_pub_key
+  - require_in:
+    - cmd: aptly_{{ mirror_name }}_mirror
   {%- endif %}
 
 {%- endfor %}
