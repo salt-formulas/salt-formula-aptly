@@ -22,12 +22,6 @@ cron_path:
     - name: PATH
     - value: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 
-{# TODO: remove me after some time #}
-aptly_mirror_update_cron_absent_obsolete:
-  cron.absent:
-  - identifier: aptly_mirror_update
-  - user: root
-
 {%- else %}
 
 aptly_mirror_update_cron:
@@ -38,12 +32,6 @@ aptly_mirror_update_cron:
   {%- else %}
   - user: root
   {%- endif %}
-
-{# TODO: remove me after some time #}
-aptly_mirror_update_cron_obsolete:
-  cron.absent:
-  - identifier: aptly_mirror_update
-  - user: root
 
 {% endif %}
 
