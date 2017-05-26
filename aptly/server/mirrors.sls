@@ -48,6 +48,11 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   - user: {{ server.user.name }}
   - cwd: {{ server.home_dir }}
   - unless: gpg --no-tty --no-default-keyring{% if server.gpg.get('keyring', None) %} --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}--list-public-keys {{gpgkey}}
+  {%- if server.secure %}
+  - require:
+    - cmd: import_gpg_priv_key
+    - cmd: import_gpg_pub_key
+  {%- endif %}
 
 {%- endfor %}
 
