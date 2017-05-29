@@ -22,12 +22,6 @@ cron_path:
     - name: PATH
     - value: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 
-{# TODO: remove me after some time #}
-aptly_mirror_update_cron_absent_obsolete:
-  cron.absent:
-  - identifier: aptly_mirror_update
-  - user: root
-
 {%- else %}
 
 aptly_mirror_update_cron:
@@ -38,12 +32,6 @@ aptly_mirror_update_cron:
   {%- else %}
   - user: root
   {%- endif %}
-
-{# TODO: remove me after some time #}
-aptly_mirror_update_cron_obsolete:
-  cron.absent:
-  - identifier: aptly_mirror_update
-  - user: root
 
 {% endif %}
 
@@ -57,16 +45,21 @@ aptly_mirror_update_cron_obsolete:
 {%- for gpgkey in mirror.get('gpgkeys', []) %}
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   cmd.run:
-{%- if gpgkey|length > 1 %}
+  {%- if gpgkey|length > 1 %}
   - name: echo "{{ gpgkey|indent(0, true)}}" | gpg --import {{ _gpg_attributes }}
-{%- else %}
+  {%- else %}
   - name: gpg {{ _gpg_attributes }} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
   - unless: gpg  {{ _gpg_attributes }} --list-public-keys {{ gpgkey }}
-{%- endif %}
-{%- if server.source.engine != "docker" %}
+  {%- endif %}
   - user: {{ server.user.name }}
   - cwd: {{ server.home_dir }}
-{%- endif %}
+  {%- if server.secure %}
+  - require:
+    - cmd: import_gpg_priv_key
+    - cmd: import_gpg_pub_key
+  - require_in:
+    - cmd: aptly_{{ mirror_name }}_mirror
+  {%- endif %}
 
 {%- endfor %}
 
