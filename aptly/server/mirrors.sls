@@ -52,16 +52,21 @@ aptly_mirror_update_cron_obsolete:
 
 {%- for mirror_name, mirror in server.mirror.iteritems() %}
 
-{%- for gpgkey in mirror.get('gpgkeys', []) %}
+{%- set _gpg_attributes="--no-tty --no-default-keyring{% if server.gpg.get('keyring', None) %} --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}" %}
 
+{%- for gpgkey in mirror.get('gpgkeys', []) %}
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   cmd.run:
-  - name: gpg --no-tty --no-default-keyring{% if server.gpg.get('keyring', None) %} --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}--keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
-  {%- if server.source.engine != "docker" %}
+{%- if gpgkey|length > 1 %}
+  - name: echo "{{ gpgkey|indent(0, true)}}" | gpg --import {{ _gpg_attributes }}
+{%- else %}
+  - name: gpg {{ _gpg_attributes }} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
+  - unless: gpg  {{ _gpg_attributes }} --list-public-keys {{ gpgkey }}
+{%- endif %}
+{%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   - cwd: {{ server.home_dir }}
-  {%- endif %}
-  - unless: gpg --no-tty --no-default-keyring{% if server.gpg.get('keyring', None) %} --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}--list-public-keys {{gpgkey}}
+{%- endif %}
 
 {%- endfor %}
 
