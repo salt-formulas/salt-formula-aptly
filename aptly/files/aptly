@@ -56,4 +56,11 @@ if [ -t 0 ]; then
     DOCKER_RUN_OPTIONS="$DOCKER_RUN_OPTIONS -i"
 fi
 
+if [[ -n "$HTTP_PROXY" || -n "$http_proxy" ]]; then
+    APTLY_ENV="${APTLY_ENV} -e HTTP_PROXY=${HTTP_PROXY:-$http_proxy}"
+fi
+if [[ -n "$HTTPS_PROXY" || -n "$https_proxy" ]]; then
+    APTLY_ENV="${APTLY_ENV} -e HTTPS_PROXY=${HTTPS_PROXY:-$https_proxy}"
+fi
+
 exec docker run --rm $DOCKER_RUN_OPTIONS $APTLY_OPTIONS $APTLY_ENV $VOLUMES -w "$(pwd)" $IMAGE aptly "$@"
