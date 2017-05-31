@@ -15,7 +15,7 @@
       'public_key': pillar.aptly.get('server', {}).gpg_public_key|default(''),
       'private_key': pillar.aptly.get('server', {}).gpg_private_key|default(''),
       'keyring': 'trustedkeys.gpg',
-      'homedir': null,
+      'homedir': None,
       'keyserver': 'keys.gnupg.net',
     },
     'user': {
