@@ -40,7 +40,7 @@ aptly_mirror_update_cron:
 
 {%- for mirror_name, mirror in server.mirror.iteritems() %}
 
-{%- set _gpg_attributes="--no-tty --no-default-keyring{% if server.gpg.get('keyring', None) %} --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}" %}
+{%- set _gpg_attributes="--no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}" %}
 
 {%- for gpgkey in mirror.get('gpgkeys', []) %}
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
