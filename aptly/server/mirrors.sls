@@ -40,14 +40,19 @@ aptly_mirror_update_cron:
 
 {%- for mirror_name, mirror in server.mirror.iteritems() %}
 
-{%- for gpgkey in mirror.get('gpgkeys', []) %}
+{%- set _gpg_attributes="--no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}" %}
 
+{%- for gpgkey in mirror.get('gpgkeys', []) %}
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   cmd.run:
-  - name: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
+  {%- if gpgkey|length > 1 %}
+  - name: echo "{{ gpgkey|indent(0, true)}}" | gpg --import {{ _gpg_attributes }}
+  {%- else %}
+  - name: gpg {{ _gpg_attributes }} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} --recv-keys {{ gpgkey }}
+  - unless: gpg  {{ _gpg_attributes }} --list-public-keys {{ gpgkey }}
+  {%- endif %}
   - user: {{ server.user.name }}
   - cwd: {{ server.home_dir }}
-  - unless: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %}--list-public-keys {{gpgkey}}
   {%- if server.secure %}
   - require:
     - cmd: import_gpg_priv_key
