@@ -21,6 +21,17 @@ publisher_installed:
 
 {%- elif publisher.source.engine == 'docker' %}
 
+{% set publisherImage = (publisher.source.image|default('tcpcloud/aptly-publisher')).split(':') %}
+{{ publisherImage[0] }}:
+  dockerng.image_present:
+    - name: {{ publisherImage[0] }}
+{%- if publisherImage|length > 1 %}
+      tag: {{ publisherImage[1] }}
+{%- else %}
+      tag: latest
+{%- endif %}
+      force: true
+
 publisher_wrapper:
   file.managed:
     - name: /usr/local/bin/aptly-publisher
