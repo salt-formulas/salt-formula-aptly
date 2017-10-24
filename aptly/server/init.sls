@@ -4,10 +4,6 @@
 {% set gpgprivfile = '{}/.gnupg/secret.gpg'.format(server.home_dir) %}
 {% set gpgpubfile = '{}/public/public.gpg'.format(server.root_dir) %}
 
-include:
-- aptly.server.repos
-- aptly.server.mirrors
-
 {%- if server.source.engine == 'pkg' %}
 
 aptly_packages:
@@ -179,6 +175,10 @@ import_gpg_priv_key:
     - cmd: aptly_installed
 
 {%- endif %}
+
+include:
+- aptly.server.repos
+- aptly.server.mirrors
 
 {%- endif %}
 
