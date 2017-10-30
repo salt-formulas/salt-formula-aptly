@@ -35,7 +35,7 @@ fi
 
 # Setup volume mounts for compose config and context
 if [ "$(pwd)" != '/' ]; then
-    VOLUMES="-v $(pwd):$(pwd):ro"
+    VOLUMES="-v $(pwd):$(pwd)"
 fi
 
 if [ -e /etc/aptly-publisher.yaml ]; then
@@ -47,7 +47,7 @@ if [ -d /etc/aptly ]; then
 fi
 
 if [ -n "$HOME" ]; then
-    VOLUMES="$VOLUMES -v $HOME:$HOME:ro"
+    VOLUMES="$VOLUMES -v $HOME:$HOME"
 fi
 
 # Only allocate tty if we detect one
@@ -58,4 +58,4 @@ if [ -t 0 ]; then
     DOCKER_RUN_OPTIONS="$DOCKER_RUN_OPTIONS -i"
 fi
 
-exec docker run --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $APTLY_PUBLISHER_OPTIONS $VOLUMES -w "$(pwd)" -v "$(pwd)":"$(pwd)" $IMAGE "$@"
+exec docker run --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $APTLY_PUBLISHER_OPTIONS $VOLUMES -w "$(pwd)" $IMAGE "$@"
