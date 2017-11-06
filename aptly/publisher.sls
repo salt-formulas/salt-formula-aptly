@@ -22,9 +22,11 @@ publisher_installed:
 {%- elif publisher.source.engine == 'docker' %}
 
 {% set publisherImage = (publisher.source.image|default('tcpcloud/aptly-publisher')).split(':') %}
+{% set registry = publisher.source.registry + "/" if publisher.source.registry is defined else "" %}
+
 {{ publisherImage[0] }}:
   dockerng.image_present:
-    - name: {{ publisherImage[0] }}
+    - name: {{ registry }}{{ publisherImage[0] }}
 {%- if publisherImage|length > 1 %}
       tag: {{ publisherImage[1] }}
 {%- else %}

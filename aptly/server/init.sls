@@ -29,7 +29,7 @@ aptly_wrapper:
     - source: salt://aptly/files/aptly
     - template: jinja
     - defaults:
-        image: {{ server.source.image|default('tcpcloud/aptly') }}
+        image: {{ server.source.registry + "/" if server.source.registry is defined else "" }}{{ server.source.image|default('tcpcloud/aptly') }}
         aptly_home: {{ server.home_dir }}
         aptly_root: {{ server.root_dir }}
     - mode: 755
