@@ -66,6 +66,20 @@ Basic Aptly server with no repos or mirrors.
               Version: GnuPG v1
               ...
 
+Define s3 endpoint:
+
+.. code-block:: yaml
+
+    parameters:
+      aptly:
+        server:
+          endpoint:
+            mys3endpoint:
+              engine: s3
+              awsAccessKeyID: xxxx
+              awsSecretAccessKey: xxxx
+              bucket: test
+
 Example pillar
 ==============
 
