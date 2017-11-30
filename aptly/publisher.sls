@@ -51,6 +51,14 @@ publisher_installed:
 
 {%- endif %}
 
+aptly_publish_script:
+  file.managed:
+  - name: /usr/local/bin/aptly_publish_update.sh
+  - source: salt://aptly/files/aptly_publish_update.sh
+  - user: root
+  - group: root
+  - mode: 755
+
 publisher_yaml:
   file.managed:
   - name: /etc/aptly-publisher.yaml
