@@ -22,25 +22,23 @@ publisher_installed:
 {%- elif publisher.source.engine == 'docker' %}
 
 {% set publisherImage = (publisher.source.image|default('tcpcloud/aptly-publisher')).split(':') %}
+{% set publisherImageTag = publisherImage[1] if publisherImage|length > 1 else 'latest' %}
 {% set registry = publisher.source.registry + "/" if publisher.source.registry is defined else "" %}
 
 {{ publisherImage[0] }}:
   dockerng.image_present:
-    - name: {{ registry }}{{ publisherImage[0] }}
-{%- if publisherImage|length > 1 %}
-      tag: {{ publisherImage[1] }}
-{%- else %}
-      tag: latest
-{%- endif %}
+    - name: {{ registry }}{{ publisherImage[0] }}:{{ publisherImageTag}}
       force: true
+    - require_in:
+      - file: publisher_wrapper
 
 publisher_wrapper:
   file.managed:
     - name: /usr/local/bin/aptly-publisher
     - source: salt://aptly/files/aptly-publisher
-    - template: jinja
     - defaults:
-        image: {{ publisher.source.image|default('tcpcloud/aptly-publisher') }}
+        image: {{ registry }}{{ publisherImage[0] }}:{{ publisherImageTag}}
+    - template: jinja
     - mode: 755
 
 publisher_installed:
