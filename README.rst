@@ -100,6 +100,20 @@ Example pillar
                distributions:
                  - nightly/trusty
 
+Proxy environment variables (optional) in cron job for mirroring script
+
+.. code-block:: yaml
+
+  aptly:
+    server:
+      enabled: true
+      ...
+      mirror_update:
+        enabled: true
+        http_proxy: "http://1.2.3.4:8000"
+        https_proxy: "http://1.2.3.4:8000"
+      ...
+
 Read more
 =========
 
