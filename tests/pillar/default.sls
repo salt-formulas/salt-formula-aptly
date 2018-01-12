@@ -16,6 +16,8 @@ aptly:
       enabled: true
       hour: 2
       minute: random
+      http_proxy: "http://1.2.3.4:8000"
+      https_proxy: "https://1.2.3.4:8000"
     gpg_passphrase: passphrase
     gpg_private_key: |
       -----BEGIN PGP PRIVATE KEY BLOCK-----

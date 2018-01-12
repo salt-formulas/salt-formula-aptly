@@ -4,7 +4,7 @@
 
 aptly_mirror_update_cron:
   cron.present:
-  - name: "/usr/local/bin/aptly_mirror_update.sh -s"
+  - name: "{% if server.mirror_update.http_proxy is defined %}export http_proxy={{ server.mirror_update.http_proxy }}; {% endif %}{% if server.mirror_update.https_proxy is defined %}export https_proxy={{ server.mirror_update.https_proxy }}; {% endif %}/usr/local/bin/aptly_mirror_update.sh -s"
   - identifier: aptly_mirror_update
   - hour: "{{ server.mirror_update.hour }}"
   - minute: "{{ server.mirror_update.minute }}"
