@@ -10,6 +10,6 @@ Vcs-Git: https://github.com/tcpcloud/salt-formula-aptly.git
 
 Package: salt-formula-aptly
 Architecture: all
-Depends: ${misc:Depends}, salt-master, reclass
+Depends: ${misc:Depends}
 Description: Aptly Salt formula
  Install and configure Aptly server and relay.
