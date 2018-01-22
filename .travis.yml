@@ -17,7 +17,7 @@ install:
   - bundle install
 
 env:
-    - PLATFORM=trevorj/salty-whales:xenial SUITE=default
+    - PLATFORM=trevorj/salty-whales:xenial-2017.7 SUITE=default
 
 before_script:
   - set -o pipefail
