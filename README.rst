@@ -80,6 +80,7 @@ Define s3 endpoint:
               awsSecretAccessKey: xxxx
               bucket: test
 
+
 Example pillar
 ==============
 
@@ -99,6 +100,27 @@ Example pillar
                component: mycomponent
                distributions:
                  - nightly/trusty
+
+Basic Aptly server mirrors
+
+.. code-block:: yaml
+
+     aptly:
+       server:
+         mirror:
+           mirror_name:
+             source: http://example.com/debian
+             distribution: xenial
+             components: main
+             architectures: amd64
+             gpgkeys: 460F3999
+             filter: "!(Name (% *-dbg))"
+             publisher:
+               component: example
+               distributions:
+                 - xenial/repo/nightly
+                 - "s3:aptcdn:xenial/repo/nightly"
+
 
 Proxy environment variables (optional) in cron job for mirroring script
 
