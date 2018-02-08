@@ -74,8 +74,8 @@ aptly_group:
 aptly_home_dir:
   file.directory:
   - name: {{ server.home_dir }}
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - mode: 755
   - require:
     - user: aptly_user
@@ -83,8 +83,8 @@ aptly_home_dir:
 aptly_root_dir:
   file.directory:
   - name: {{ server.root_dir }}
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - mode: 755
   - require:
     - user: aptly_user
@@ -92,8 +92,8 @@ aptly_root_dir:
 aptly_pub_dir:
   file.directory:
   - name: {{ server.root_dir }}/public
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - require:
     - file: aptly_root_dir
 
@@ -107,8 +107,8 @@ aptly_conf:
   - name: {{ server.home_dir }}/.aptly.conf
   - source: salt://aptly/files/aptly.conf
   - template: jinja
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - mode: 664
   - require:
     - file: aptly_pub_dir
@@ -127,8 +127,8 @@ aptly_mirror_update_script:
 aptly_gpg_key_dir:
   file.directory:
   - name: {{ server.home_dir }}/.gnupg
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - mode: 700
   - require:
     - file: aptly_home_dir
@@ -138,8 +138,8 @@ gpg_priv_key:
   file.managed:
   - name: {{ gpgprivfile }}
   - contents: {{ server.gpg.private_key|yaml }}
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - mode: 600
   - require:
     - file: aptly_gpg_key_dir
@@ -148,16 +148,17 @@ gpg_pub_key:
   file.managed:
   - name: {{ gpgpubfile }}
   - contents: {{ server.gpg.public_key|yaml }}
-  - user: aptly
-  - group: aptly
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
   - mode: 644
+  - makedirs: true
   - require:
     - file: aptly_gpg_key_dir
 
 import_gpg_pub_key:
   cmd.run:
   - name: gpg --no-tty --import {{ gpgpubfile }}
-  - user: aptly
+  - user: {{ server.user.name }}
   - unless: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --list-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: gpg_pub_key
@@ -166,7 +167,7 @@ import_gpg_pub_key:
 import_gpg_priv_key:
   cmd.run:
   - name: gpg --no-tty --allow-secret-key-import{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --import {{ gpgprivfile }}
-  - user: aptly
+  - user: {{ server.user.name }}
   - unless: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --list-secret-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
