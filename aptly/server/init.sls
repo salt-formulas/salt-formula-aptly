@@ -151,6 +151,7 @@ gpg_pub_key:
   - user: {{ server.user.name }}
   - group: {{ server.user.group }}
   - mode: 644
+  - makedirs: true
   - require:
     - file: aptly_gpg_key_dir
 
