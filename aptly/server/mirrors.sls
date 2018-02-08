@@ -69,6 +69,9 @@ aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
   - unless: aptly snapshot show {{ snapshot }}
   - require:
     - cmd: aptly_{{ mirror_name }}_update
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
+  {%- endif %}
 
 {%- endfor %}
 
@@ -79,6 +82,10 @@ aptly_{{ mirror_name }}_mirror:
   - user: {{ server.user.name }}
   {%- endif %}
   - unless: aptly mirror show {{ mirror_name }}
+  {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
+  {%- endif %}
 
 {%- if mirror.get('update', False) == True %}
 aptly_{{ mirror_name }}_update:
@@ -89,6 +96,9 @@ aptly_{{ mirror_name }}_update:
   {%- endif %}
   - require:
     - cmd: aptly_{{ mirror_name }}_mirror
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
+  {%- endif %}
 {%- endif %}
 
 {%- if mirror.publish is defined %}
@@ -97,6 +107,10 @@ aptly_publish_{{ server.mirror[mirror_name].publish }}_snapshot:
   - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ server.mirror[mirror_name].publish }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
+  {%- endif %}
+  {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
   {%- endif %}
 {% endif %}
 

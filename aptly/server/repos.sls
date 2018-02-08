@@ -11,6 +11,9 @@ aptly_{{ repo_name }}_repo_create:
   {%- endif %}
   - require:
     - file: aptly_conf
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
+  {%- endif %}
 
 {%- if repo.pkg_dir is defined and repo.pkg_dir %}
 
@@ -30,6 +33,9 @@ aptly_{{ repo_name }}_pkgs_add:
   - require:
     - cmd: aptly_{{ repo_name }}_repo_create
     - file: pkgdir
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
+  {%- endif %}
 
 {%- endif %}
 
@@ -42,5 +48,9 @@ aptly_{{ repo_name }}_repo_publish:
   {%- endif %}
   - unless: aptly publish update -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ repo.distribution }}
 {%- endif %}
+  {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
+  {%- endif %}
 
 {%- endfor %}
