@@ -87,6 +87,19 @@ aptly_{{ mirror_name }}_mirror:
     - file: aptly_wrapper
   {%- endif %}
 
+aptly_{{ mirror_name }}_mirror_edit:
+  cmd.run:
+  - name: aptly mirror edit {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter="{{ mirror.filter }}" {% endif %}{% if mirror.get('filter_with_deps') %}-filter-with-deps {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }}
+  {%- if server.source.engine != "docker" %}
+  - user: {{ server.user.name }}
+  {%- endif %}
+  - onlyif: 'aptly mirror show {{ mirror_name }} | grep -v "^Filter: {{ mirror.get('filter', '') }}$" | grep -q "^Filter: "'
+  {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
+    - cmd: aptly_{{ mirror_name }}_mirror
+  {%- endif %}
+
 {%- if mirror.get('update', False) == True %}
 aptly_{{ mirror_name }}_update:
   cmd.run:
@@ -96,6 +109,7 @@ aptly_{{ mirror_name }}_update:
   {%- endif %}
   - require:
     - cmd: aptly_{{ mirror_name }}_mirror
+    - cmd: aptly_{{ mirror_name }}_mirror_edit
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
