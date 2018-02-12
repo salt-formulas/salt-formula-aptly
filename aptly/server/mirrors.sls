@@ -77,7 +77,7 @@ aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
 
 aptly_{{ mirror_name }}_mirror:
   cmd.run:
-  - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter="{{ mirror.filter }}" {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
+  - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter="{{ mirror.filter }}" {% endif %}{% if mirror.get('filter_with_deps') %}-filter-with-deps {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}

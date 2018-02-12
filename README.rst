@@ -115,6 +115,7 @@ Basic Aptly server mirrors
              architectures: amd64
              gpgkeys: 460F3999
              filter: "!(Name (% *-dbg))"
+             filter_with_deps: true
              publisher:
                component: example
                distributions:
