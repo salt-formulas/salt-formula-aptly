@@ -33,6 +33,11 @@ aptly_wrapper:
         aptly_home: {{ server.home_dir }}
         aptly_root: {{ server.root_dir }}
     - mode: 755
+  {%- if server.secure %}
+    - require:
+      - cmd: import_gpg_pub_key
+      - cmd: import_gpg_priv_key
+  {%- endif %}
 
 aptly_installed:
   cmd.wait:
