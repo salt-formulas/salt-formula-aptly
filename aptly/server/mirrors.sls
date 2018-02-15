@@ -113,10 +113,10 @@ aptly_{{ mirror_name }}_mirror_edit:
   - user: {{ server.user.name }}
   {%- endif %}
   - onlyif: 'aptly mirror show {{ mirror_name }} | grep -v "^Filter: {{ mirror.get('filter', '') }}$" | grep -q "^Filter: "'
-  {%- if server.source.engine == "docker" %}
   - require:
-    - file: aptly_wrapper
     - cmd: aptly_{{ mirror_name }}_mirror
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
   {%- endif %}
 
 aptly_{{ mirror_name }}_update:
