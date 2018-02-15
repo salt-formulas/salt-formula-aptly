@@ -39,6 +39,41 @@ aptly_{{ repo_name }}_pkgs_add:
 
 {%- endif %}
 
+{%- for snapshot in repo.get('snapshots', []) %}
+
+{%- if snapshot is mapping and snapshot.get('drop') %}
+
+aptly_dropsnapshot_{{ repo_name }}_{{ snapshot.name }}:
+  cmd.run:
+  - name: aptly snapshot drop {{ snapshot.name }}
+    {%- if server.source.engine != "docker" %}
+  - user: {{ server.user.name }}
+    {%- endif %}
+  - onlyif: aptly snapshot show {{ snapshot.name }}
+    {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
+    {%- endif %}
+
+{%- else %}
+
+{% set snapshot_name = snapshot.name if snapshot is mapping else snapshot %}
+aptly_addsnapshot_{{ repo_name }}_{{ snapshot_name }}:
+  cmd.run:
+  - name: aptly snapshot create {{ snapshot_name }} from repo {{ repo_name }}
+  {%- if server.source.engine != "docker" %}
+  - user: {{ server.user.name }}
+  {%- endif %}
+  - unless: aptly snapshot show {{ snapshot_name }}
+  - require:
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
+  {%- endif %}
+
+{%- endif %}
+
+{%- endfor %}
+
 {%- if repo.publish is defined and repo.publish == True %}
 aptly_{{ repo_name }}_repo_publish:
   cmd.run:
