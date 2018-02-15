@@ -119,10 +119,12 @@ aptly_{{ mirror_name }}_mirror_edit:
     - cmd: aptly_{{ mirror_name }}_mirror
   {%- endif %}
 
-{%- if mirror.get('update', False) == True %}
 aptly_{{ mirror_name }}_update:
   cmd.run:
   - name: aptly mirror update {{ mirror_name }}
+  {%- if not mirror.get('update') %}
+  - onlyif: /bin/false
+  {%- endif %}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
@@ -132,7 +134,6 @@ aptly_{{ mirror_name }}_update:
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
-{%- endif %}
 
 {%- if mirror.publish is defined %}
 aptly_publish_{{ server.mirror[mirror_name].publish }}_snapshot:
