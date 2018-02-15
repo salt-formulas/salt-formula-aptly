@@ -96,6 +96,8 @@ Example pillar
              architectures: amd64
              comment: "Custom components"
              sources: false
+             pkg_dir: /var/lib/aptly/incoming/myrepo/pkgs
+             remove_files: true
              publisher:
                component: mycomponent
                distributions:

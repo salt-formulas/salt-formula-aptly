@@ -26,7 +26,7 @@ pkgdir:
 
 aptly_{{ repo_name }}_pkgs_add:
   cmd.run:
-  - name: aptly repo add {{ repo_name }} {{ repo.pkg_dir }}
+  - name: aptly repo add {% if repo.get('remove_files') %}-remove-files {% endif %}{{ repo_name }} {{ repo.pkg_dir }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
