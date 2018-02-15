@@ -125,6 +125,38 @@ Basic Aptly server mirrors
                  - "s3:aptcdn:xenial/repo/nightly"
 
 
+Aptly server publish
+
+.. code-block:: yaml
+
+     aptly:
+       server:
+         mirror:
+           debian_jessie:
+             source: http://deb.debian.org/debian/
+             distribution: jessie
+             update: true
+             snapshots:
+               - name: debian_jessie-20180215
+         repo:
+           myrepo:
+             distribution: jessie
+             component: main
+             architectures: amd64,armhf
+             comment: "Myrepo specific packages"
+             snapshots:
+               - name: myrepo-20180215
+         publish:
+           - snapshot: debian_jessie-20180215
+             prefix: dev/debian
+             distribution: jessie
+             component: main
+           - snapshot: myrepo-20180215
+             prefix: dev/myrepo
+             distribution: jessie
+             component: main
+
+
 Proxy environment variables (optional) in cron job for mirroring script
 
 .. code-block:: yaml
