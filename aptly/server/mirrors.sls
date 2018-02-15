@@ -60,18 +60,37 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
 
 {%- for snapshot in mirror.get('snapshots', []) %}
 
-aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
+{%- if snapshot is mapping and snapshot.get('drop') %}
+
+aptly_dropsnapshot_{{ mirror_name }}_{{ snapshot.name }}:
   cmd.run:
-  - name: aptly snapshot create {{ snapshot }} from mirror {{ mirror_name }}
+  - name: aptly snapshot drop {{ snapshot.name }}
+    {%- if server.source.engine != "docker" %}
+  - user: {{ server.user.name }}
+    {%- endif %}
+  - onlyif: aptly snapshot show {{ snapshot.name }}
+    {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
+    {%- endif %}
+
+{%- else %}
+
+{% set snapshot_name = snapshot.name if snapshot is mapping else snapshot %}
+aptly_addsnapshot_{{ mirror_name }}_{{ snapshot_name }}:
+  cmd.run:
+  - name: aptly snapshot create {{ snapshot_name }} from mirror {{ mirror_name }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
-  - unless: aptly snapshot show {{ snapshot }}
+  - unless: aptly snapshot show {{ snapshot_name }}
   - require:
     - cmd: aptly_{{ mirror_name }}_update
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
+
+{%- endif %}
 
 {%- endfor %}
 
