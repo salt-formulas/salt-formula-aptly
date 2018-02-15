@@ -30,6 +30,7 @@ aptly_{{ repo_name }}_pkgs_add:
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
+  - onlyif: ls -1qA {{ repo.pkg_dir }} | grep -q .
   - require:
     - cmd: aptly_{{ repo_name }}_repo_create
     - file: pkgdir
