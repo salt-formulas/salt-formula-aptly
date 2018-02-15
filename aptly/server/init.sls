@@ -185,6 +185,7 @@ import_gpg_priv_key:
 include:
 - aptly.server.repos
 - aptly.server.mirrors
+- aptly.server.publish
 
 {%- endif %}
 
