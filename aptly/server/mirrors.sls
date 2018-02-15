@@ -136,9 +136,10 @@ aptly_{{ mirror_name }}_update:
   {%- endif %}
 
 {%- if mirror.publish is defined %}
-aptly_publish_{{ server.mirror[mirror_name].publish }}_snapshot:
+
+aptly_publish_{{ mirror.publish }}_snapshot:
   cmd.run:
-  - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ server.mirror[mirror_name].publish }}
+  - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ mirror.publish }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
