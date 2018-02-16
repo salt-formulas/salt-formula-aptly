@@ -97,7 +97,10 @@ Example pillar
              comment: "Custom components"
              sources: false
              pkg_dir: /var/lib/aptly/incoming/myrepo/pkgs
+             changes_dir: /var/lib/aptly/incoming/myrepo/changes
              remove_files: true
+             gpgkeys:
+               - 8F759C86
              publisher:
                component: mycomponent
                distributions:

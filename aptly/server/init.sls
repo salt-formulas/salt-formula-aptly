@@ -180,6 +180,15 @@ import_gpg_priv_key:
   - require_in:
     - cmd: aptly_installed
 
+{% if server.gpg.get('keyring') %}
+gpg_add_keyring_pub_key:
+  cmd.run:
+  - name: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --no-default-keyring --keyring {{ server.gpg.keyring }} --import {{ gpgpubfile }}
+  - user: {{ server.user.name }}
+  - cwd: {{ server.home_dir }}
+  - unless: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --no-default-keyring --keyring {{ server.gpg.keyring }} --list-keys | grep '{{ server.gpg.keypair_id }}'
+{%- endif %}
+
 {%- endif %}
 
 include:
