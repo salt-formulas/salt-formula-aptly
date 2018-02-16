@@ -17,11 +17,11 @@ doc:
         gpg:
           value:
             keypair_id: {{ server.gpg.keypair_id }}
-            {%- if server.gpg.get('keyring', None) %}
+            {%- if server.gpg.get('keyring') %}
             keyring: {{ server.gpg.keyring }}
             {%- endif %}
-            {%- if server.gpg.get('homedir', None) %}
-            homedir: {{ server.gpg.get('homedir', None) }}
+            {%- if server.gpg.get('homedir') %}
+            homedir: {{ server.gpg.get('homedir') }}
             {%- endif %}
         {%- endif %}
         directories:
