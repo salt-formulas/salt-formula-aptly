@@ -118,7 +118,8 @@ Basic Aptly server mirrors
              distribution: xenial
              components: main
              architectures: amd64
-             gpgkeys: 460F3999
+             gpgkeys:
+               - 460F3999
              filter: "!(Name (% *-dbg))"
              filter_with_deps: true
              publisher:
