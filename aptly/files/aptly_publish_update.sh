@@ -21,8 +21,7 @@ at_exit() {
 }
 trap at_exit EXIT
 
-while getopts "a?c?f?r?v?"  option
-do
+while getopts "a?c?f?r?v?:u:"  option;do
  case "${option}"
  in
  a|\?) START_API=1;;
@@ -30,6 +29,7 @@ do
  f|\?) FORCE_OVERWRITE=1;;
  r|\?) RECREATE=1;;
  v|\?) VERBOSE=1;;
+ u|\?) URL=$OPTARG;;
  esac
 done
 
@@ -43,7 +43,8 @@ if [[ $FORCE_OVERWRITE -eq 1 ]]; then
      PUBLISHER_OPTIONS+=" --force-overwrite"
 fi
 
-aptly-publisher --timeout=1200 publish -v -c /etc/aptly-publisher.yaml --url http://127.0.0.1:8080 --architectures amd64 $PUBLISHER_OPTIONS
+URL=${URL:-"http://127.0.0.1:8080"}
+aptly-publisher --timeout=1200 publish -v -c /etc/aptly-publisher.yaml --url ${URL} --architectures amd64 $PUBLISHER_OPTIONS
 
 if [[ $? -ne 0 ]]; then
     echo "Aptly Publisher failed."
