@@ -44,7 +44,7 @@ if [[ $FORCE_OVERWRITE -eq 1 ]]; then
 fi
 
 URL=${URL:-"http://127.0.0.1:8080"}
-aptly-publisher --timeout=1200 publish -v -c /etc/aptly-publisher.yaml --url ${URL} --architectures amd64 $PUBLISHER_OPTIONS
+aptly-publisher --timeout=1200 publish -v -c /etc/aptly/publisher.yaml --url ${URL} --architectures amd64 $PUBLISHER_OPTIONS
 
 if [[ $? -ne 0 ]]; then
     echo "Aptly Publisher failed."

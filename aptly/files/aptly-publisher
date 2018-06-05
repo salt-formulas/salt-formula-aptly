@@ -8,7 +8,6 @@
 #
 # This script will attempt to mirror the host paths by using volumes for the
 # following paths:
-#   * /etc/aptly-publisher.yaml
 #   * /etc/aptly
 #   * $(pwd)
 #   * $HOME if it's set
@@ -36,10 +35,6 @@ fi
 # Setup volume mounts for compose config and context
 if [ "$(pwd)" != '/' ]; then
     VOLUMES="-v $(pwd):$(pwd)"
-fi
-
-if [ -e /etc/aptly-publisher.yaml ]; then
-    VOLUMES="-v /etc/aptly-publisher.yaml:/etc/aptly-publisher.yaml:ro"
 fi
 
 if [ -d /etc/aptly ]; then

@@ -59,11 +59,12 @@ aptly_publish_script:
 
 publisher_yaml:
   file.managed:
-  - name: /etc/aptly-publisher.yaml
+  - name: /etc/aptly/publisher.yaml
   - source: salt://aptly/files/aptly-publisher.yaml
   - template: jinja
   - user: root
   - group: root
   - mode: 664
+  - makedirs: True
 
 {% endif %}
