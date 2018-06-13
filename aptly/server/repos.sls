@@ -37,7 +37,7 @@ aptly_{{ repo_name }}_repo_create:
 
 {%- if repo.pkg_dir is defined and repo.pkg_dir %}
 
-pkgdir:
+pkgdir_{{ repo.pkg_dir }}:
   file.directory:
   - name: {{ repo.pkg_dir }}
   - user: {{ server.user.name }}
@@ -53,7 +53,7 @@ aptly_{{ repo_name }}_pkgs_add:
   - onlyif: ls -1qA {{ repo.pkg_dir }} | grep -q .
   - require:
     - cmd: aptly_{{ repo_name }}_repo_create
-    - file: pkgdir
+    - file: pkgdir_{{ repo.pkg_dir }}
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
@@ -62,7 +62,7 @@ aptly_{{ repo_name }}_pkgs_add:
 
 {%- if repo.changes_dir is defined and repo.changes_dir %}
 
-changesdir:
+changesdir_{{ repo.changes_dir }}:
   file.directory:
   - name: {{ repo.changes_dir }}
   - user: {{ server.user.name }}
@@ -78,7 +78,7 @@ aptly_{{ repo_name }}_changes_add:
   - onlyif: ls -1qA {{ repo.changes_dir }} | grep -q .
   - require:
     - cmd: aptly_{{ repo_name }}_repo_create
-    - file: changesdir
+    - file: changesdir_{{ repo.changes_dir }}
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
