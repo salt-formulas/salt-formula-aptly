@@ -26,7 +26,11 @@ publisher_installed:
 {% set registry = publisher.source.registry + "/" if publisher.source.registry is defined else "" %}
 
 {{ publisherImage[0] }}:
+{%- if grains['saltversioninfo'] < [2017, 7] %}
   dockerng.image_present:
+{%- else %}
+  docker_image.present:
+{%- endif %}
     - name: {{ registry }}{{ publisherImage[0] }}:{{ publisherImageTag}}
       force: true
     - require_in:
