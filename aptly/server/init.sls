@@ -162,29 +162,39 @@ gpg_pub_key:
 
 import_gpg_pub_key:
   cmd.run:
-  - name: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --import {{ gpgpubfile }}
+  - name: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --import {{ gpgpubfile }}
   - user: {{ server.user.name }}
-  - unless: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --list-keys | grep '{{ server.gpg.keypair_id }}'
+  - unless: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --list-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: gpg_pub_key
     - cmd: import_gpg_priv_key
 
 import_gpg_priv_key:
   cmd.run:
-  - name: gpg --no-tty --allow-secret-key-import{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --import {{ gpgprivfile }}
+  - name: gpg --no-tty --allow-secret-key-import{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --import {{ gpgprivfile }}
   - user: {{ server.user.name }}
-  - unless: gpg --no-tty{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --list-secret-keys | grep '{{ server.gpg.keypair_id }}'
+  - unless: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --list-secret-keys | grep '{{ server.gpg.keypair_id }}'
   - require:
     - file: aptly_gpg_key_dir
     - file: gpg_priv_key
   - require_in:
     - cmd: aptly_installed
 
+{% if server.gpg.get('keyring') %}
+gpg_add_keyring_pub_key:
+  cmd.run:
+  - name: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --no-default-keyring --keyring {{ server.gpg.keyring }} --import {{ gpgpubfile }}
+  - user: {{ server.user.name }}
+  - cwd: {{ server.home_dir }}
+  - unless: gpg --no-tty{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --no-default-keyring --keyring {{ server.gpg.keyring }} --list-keys | grep '{{ server.gpg.keypair_id }}'
+{%- endif %}
+
 {%- endif %}
 
 include:
 - aptly.server.repos
 - aptly.server.mirrors
+- aptly.server.publish
 
 {%- endif %}
 

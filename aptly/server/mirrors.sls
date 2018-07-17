@@ -44,10 +44,10 @@ aptly_mirror_update_cron:
 
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   cmd.run:
-  - name: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} {% if server.gpg.get('http_proxy', None) %} --keyserver-options http-proxy={{ server.gpg.get('http_proxy') }} {% endif %} --recv-keys {{ gpgkey }}
+  - name: gpg --no-tty {% if server.gpg.get('keyring') %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }}{% endif %} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} {% if server.gpg.get('http_proxy') %} --keyserver-options http-proxy={{ server.gpg.get('http_proxy') }} {% endif %} --recv-keys {{ gpgkey }}
   - user: {{ server.user.name }}
   - cwd: {{ server.home_dir }}
-  - unless: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %} {% if server.gpg.get('http_proxy', None) %} --keyserver-options http-proxy={{ server.gpg.get('http_proxy') }} {% endif %} --list-public-keys {{gpgkey}}
+  - unless: gpg --no-tty {% if server.gpg.get('keyring') %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir') %} --homedir {{ server.gpg.homedir }} {% endif %} {% if server.gpg.get('http_proxy') %} --keyserver-options http-proxy={{ server.gpg.get('http_proxy') }} {% endif %} --list-public-keys {{gpgkey}}
   {%- if server.secure %}
   - require:
     - cmd: import_gpg_priv_key
@@ -60,18 +60,37 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
 
 {%- for snapshot in mirror.get('snapshots', []) %}
 
-aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
+{%- if snapshot is mapping and snapshot.get('drop') %}
+
+aptly_dropsnapshot_{{ mirror_name }}_{{ snapshot.name }}:
   cmd.run:
-  - name: aptly snapshot create {{ snapshot }} from mirror {{ mirror_name }}
+  - name: aptly snapshot drop {{ snapshot.name }}
+    {%- if server.source.engine != "docker" %}
+  - user: {{ server.user.name }}
+    {%- endif %}
+  - onlyif: aptly snapshot show {{ snapshot.name }}
+    {%- if server.source.engine == "docker" %}
+  - require:
+    - file: aptly_wrapper
+    {%- endif %}
+
+{%- else %}
+
+{% set snapshot_name = snapshot.name if snapshot is mapping else snapshot %}
+aptly_addsnapshot_{{ mirror_name }}_{{ snapshot_name }}:
+  cmd.run:
+  - name: aptly snapshot create {{ snapshot_name }} from mirror {{ mirror_name }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
-  - unless: aptly snapshot show {{ snapshot }}
+  - unless: aptly snapshot show {{ snapshot_name }}
   - require:
     - cmd: aptly_{{ mirror_name }}_update
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
+
+{%- endif %}
 
 {%- endfor %}
 
@@ -94,16 +113,18 @@ aptly_{{ mirror_name }}_mirror_edit:
   - user: {{ server.user.name }}
   {%- endif %}
   - onlyif: 'aptly mirror show {{ mirror_name }} | grep -v "^Filter: {{ mirror.get('filter', '') }}$" | grep -q "^Filter: "'
-  {%- if server.source.engine == "docker" %}
   - require:
-    - file: aptly_wrapper
     - cmd: aptly_{{ mirror_name }}_mirror
+  {%- if server.source.engine == "docker" %}
+    - file: aptly_wrapper
   {%- endif %}
 
-{%- if mirror.get('update', False) == True %}
 aptly_{{ mirror_name }}_update:
   cmd.run:
   - name: aptly mirror update {{ mirror_name }}
+  {%- if not mirror.get('update') %}
+  - onlyif: /bin/false
+  {%- endif %}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}
@@ -113,12 +134,12 @@ aptly_{{ mirror_name }}_update:
   {%- if server.source.engine == "docker" %}
     - file: aptly_wrapper
   {%- endif %}
-{%- endif %}
 
 {%- if mirror.publish is defined %}
-aptly_publish_{{ server.mirror[mirror_name].publish }}_snapshot:
+
+aptly_publish_{{ mirror.publish }}_snapshot:
   cmd.run:
-  - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ server.mirror[mirror_name].publish }}
+  - name: aptly publish snapshot -batch=true -gpg-key='{{ server.gpg.keypair_id }}' -passphrase='{{ server.gpg.passphrase }}' {{ mirror.publish }}
   {%- if server.source.engine != "docker" %}
   - user: {{ server.user.name }}
   {%- endif %}

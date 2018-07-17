@@ -96,6 +96,11 @@ Example pillar
              architectures: amd64
              comment: "Custom components"
              sources: false
+             pkg_dir: /var/lib/aptly/incoming/myrepo/pkgs
+             changes_dir: /var/lib/aptly/incoming/myrepo/changes
+             remove_files: true
+             gpgkeys:
+               - 8F759C86
              publisher:
                component: mycomponent
                distributions:
@@ -113,7 +118,8 @@ Basic Aptly server mirrors
              distribution: xenial
              components: main
              architectures: amd64
-             gpgkeys: 460F3999
+             gpgkeys:
+               - 460F3999
              filter: "!(Name (% *-dbg))"
              filter_with_deps: true
              publisher:
@@ -121,6 +127,38 @@ Basic Aptly server mirrors
                distributions:
                  - xenial/repo/nightly
                  - "s3:aptcdn:xenial/repo/nightly"
+
+
+Aptly server publish
+
+.. code-block:: yaml
+
+     aptly:
+       server:
+         mirror:
+           debian_jessie:
+             source: http://deb.debian.org/debian/
+             distribution: jessie
+             update: true
+             snapshots:
+               - name: debian_jessie-20180215
+         repo:
+           myrepo:
+             distribution: jessie
+             component: main
+             architectures: amd64,armhf
+             comment: "Myrepo specific packages"
+             snapshots:
+               - name: myrepo-20180215
+         publish:
+           - snapshot: debian_jessie-20180215
+             prefix: dev/debian
+             distribution: jessie
+             component: main
+           - snapshot: myrepo-20180215
+             prefix: dev/myrepo
+             distribution: jessie
+             component: main
 
 
 Proxy environment variables (optional) in cron job for mirroring script
