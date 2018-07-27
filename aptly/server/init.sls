@@ -1,6 +1,7 @@
 {%- from "aptly/map.jinja" import server with context %}
 {%- if server.enabled %}
 
+{% set gpgconffile = '{}/.gnupg/gpg.conf'.format(server.home_dir) %}
 {% set gpgprivfile = '{}/.gnupg/secret.gpg'.format(server.home_dir) %}
 {% set gpgpubfile = '{}/public/public.gpg'.format(server.root_dir) %}
 
@@ -138,6 +139,16 @@ aptly_gpg_key_dir:
   - require:
     - file: aptly_home_dir
 
+gpg_conf_file:
+  file.managed:
+  - name: {{ gpgconffile }}
+  - source: salt://aptly/files/gpg.conf
+  - user: {{ server.user.name }}
+  - group: {{ server.user.group }}
+  - mode: 644
+  - makedirs: true
+  - require:
+    - file: aptly_gpg_key_dir
 
 gpg_priv_key:
   file.managed:
