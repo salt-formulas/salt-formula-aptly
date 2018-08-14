@@ -179,6 +179,13 @@ import_gpg_pub_key:
   - require:
     - file: gpg_pub_key
     - cmd: import_gpg_priv_key
+{%- if grains['saltversioninfo'][0] >= 2017 and grains['saltversioninfo'][1] >= 7 %}
+  - retry:
+      attempts: 5
+      until: True
+      interval: 5
+      splay: 2
+{%- endif %}
 
 import_gpg_priv_key:
   cmd.run:
@@ -190,6 +197,13 @@ import_gpg_priv_key:
     - file: gpg_priv_key
   - require_in:
     - cmd: aptly_installed
+{%- if grains['saltversioninfo'][0] >= 2017 and grains['saltversioninfo'][1] >= 7 %}
+  - retry:
+      attempts: 5
+      until: True
+      interval: 5
+      splay: 2
+{%- endif %}
 
 {%- endif %}
 

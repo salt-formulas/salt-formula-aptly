@@ -55,6 +55,14 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   - require_in:
     - cmd: aptly_{{ mirror_name }}_mirror
   {%- endif %}
+{%- if grains['saltversioninfo'][0] >= 2017 and grains['saltversioninfo'][1] >= 7 %}
+  - retry:
+      attempts: 5
+      until: True
+      interval: 5
+      splay: 2
+{%- endif %}
+
 
 {%- endfor %}
 
