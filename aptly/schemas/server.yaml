@@ -1,0 +1,231 @@
+title: APTLY server role
+description: |
+  APTLY server role
+type: object
+additionalProperties: false
+
+required:
+  - enabled
+
+properties:
+  enabled:
+    description: Enables APTLY server.
+    type: boolean
+  secure:
+    description: Enable secure APTLY server.
+    type: boolean
+  source:
+    description: Installation source parameters for APTLY server.
+    type: object
+    additionalProperties: false
+    required: [engine]
+    properties:
+      engine:
+        description: Installation source for APTLY publisher. Can be one of ['pkg', 'docker']
+        type: string
+        enum: ['pkg', 'docker']
+      pkgs:
+        description: List of packages to be installed. Set if 'source' is 'pkg'
+        type: array
+        items:
+          description: APTLY package names
+          type: string
+      image:
+        description: Publisher full image name. Set if 'source' is 'docker'
+        type: string
+      registry:
+        description: Regirsty host for publisher image. Set if 'source' is 'docker'
+        type: string
+  no_config:
+    description: Start service without config
+    type: boolean
+  home_dir:
+    description: Home directory for APTLY system user
+    type: string
+  root_dir:
+    description: Root directory
+    type: string
+  user:
+    description: APTLY System user information.
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        description: User name for APLTY
+        type: string
+      group:
+        description: Group name for APTLY
+        type: string
+      uid:
+        description: User id for APTLY user
+        type: integer
+      gid:
+        description: Groupd id for APTLY user
+        type: integer
+  gpg_keypair_id:
+    description: GPG keypair id
+    type: string
+  gpg_passphrase:
+    description: Password phrase for GPG key
+    type: string
+  gpg_public_key:
+    description: Public key to PGP repository
+    type: string
+  gpg_private_key:
+    description: GPG Private key
+    type: string
+  gpg:
+    description: GPG parameters map
+    type: object
+    additionalProperties: false
+    required: [private_key, public_key, passphrase]
+    properties:
+      private_key:
+        description: GPG Private key
+        type: string
+      public_key:
+        description: Public key to PGP repository
+        type: string
+      homedir:
+        description: GPG home directory
+        type: string
+      keyserver:
+        description: GPG key server
+        type: string
+      keypair_id:
+        description: GPG keypair id
+        type: string
+      passphrase:
+        description: Password phrase for GPG key
+        type: string
+      keyring:
+        description: Keyring for GPG
+        type: string
+  api:
+    description: Parameters map for for APTLY API services
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        description: Enables APTLY API service
+        type: boolean
+      bind:
+        description: Bind parameters for APTLY API service
+        type: object
+        additionalProperties: false
+        properties:
+          host:
+            description: Host to bind APTLY API service
+            type: string
+          port:
+            description: Port to bind APTLY API service
+            type: [string, integer]
+  mirror_update:
+    description: Parameters map for for apt mirror
+    type: object
+    additionalProperties: false
+    required: [enabled]
+    properties:
+      enabled:
+        description: Enables APTLY mirror
+        type: boolean
+      http_proxy:
+        description: HTTP Proxy for apt mirror access
+        type: string
+      https_proxy:
+        description: HTTPS Proxy for apt mirror access
+        type: string
+      hour:
+        description: Hour parameter in cron job for aptly mirror update
+        type: [string, integer]
+      minute:
+        description: Minute parameter in cron job for aptly mirror update
+        type: [string, integer]
+  mirror:
+    description: |
+      Mirror map where key is mirror name and value is a list of mirror properties: source, distribution, gpgkeys and etc
+    type: array
+    items:
+      type: object
+      $ref: "#/definitions/_aptly_mirror_object"
+  repo:
+    description: Repo map where key is repo name and value is a list of repo properties
+    type: object
+    patternProperties:
+      "^[A-Za-z0-9]*$":
+        $ref: "#/definitions/_aptly_repo_object"
+
+definitions:
+  _aptly_mirror_object:
+    description: Parameters map of apt mirror
+    type: object
+    properties:
+      source:
+        description: Source url for apt mirror
+        type: string
+        example: http://example.com/debian
+      distribution:
+        description: OS distribution
+        type: string
+        example: xenial
+      components:
+        description: Component's types
+        type: string
+        example: main
+      architectures:
+        $ref: "#/definitions/_architectures"
+      gpgkeys:
+        description: GPG keys for apt mirror
+        type: string
+      filter:
+        description: Filter for packages in mirror
+        type: string
+        example: "!(Name (% *-dbg))"
+      filter_with_deps:
+        description: When filtering, include dependencies of matching packages as well
+        type: string
+      publisher:
+        description: Parameters of publish mirror
+        type: object
+        $ref: "#/definitions/_aptly_mirror|repo_publisher_object"
+      sources:
+        description: Download source packages in addition to binary packages
+        type: boolean
+      udebs:
+        description: Download .udeb packages
+        type: boolean
+  _aptly_mirror|repo_publisher_object:
+    description: Parameters of publish mirror|repo
+    type: object
+    properties:
+      component:
+        description: Publisher's component
+        type: string
+      distributions:
+        description: List of distributions for publisher
+        type: array
+        items:
+          type: string
+  _aptly_repo_object:
+    type: object
+    properties:
+      distribution:
+        description: OS distribution
+        type: string
+        example: xenial
+      component:
+        description: Component type
+        type: string
+        example: main
+      architectures:
+        $ref: "#/definitions/_architectures"
+      comment:
+        description: Comment for repo description
+        type: string
+      publisher:
+        $ref: "#/definitions/_aptly_mirror|repo_publisher_object"
+  _architectures:
+    description: Packages architecture
+    type: string
+    example: amd64

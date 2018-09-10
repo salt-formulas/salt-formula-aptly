@@ -1,0 +1,33 @@
+title: APTLY publisher role
+description: APTLY publisher role
+type: object
+additionalProperties: false
+
+required:
+  - enabled
+
+properties:
+  enabled:
+    description: Enables APTLY publisher service
+    type: boolean
+  source:
+    description: Installation source parameters of APTLY publisher
+    type: object
+    additionalProperties: false
+    required: [engine]
+    properties:
+      engine:
+        description: Installation source for APTLY publisher
+        type: string
+        enum: ['pkg', 'pip', 'docker']
+      pkgs:
+        description: List of packages to be installed. Set if 'source' is 'pkg'
+        type: array
+        items:
+          type: string
+      image:
+        description: Publisher full image name. Set if installation from docker is chosen
+        type: string
+      registry:
+        description: Docker regirsty host for publisher image. Set if installation from docker is chosen
+        type: string

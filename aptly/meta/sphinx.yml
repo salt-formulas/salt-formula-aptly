@@ -43,7 +43,7 @@ doc:
             {%- endfor %}
         {%- endif %}
   {%- endif %}
-  {%- if pillar.aptly.server.api is defined %}
+  {%- if pillar.aptly.server is defined and pillar.aptly.server.api is defined %}
     api:
       name: api
       param: {}
@@ -55,8 +55,8 @@ doc:
       param:
         source:
           value:
-            engine: {{ server.source.engine }}
-            {%- if server.source.engine == 'docker' %}
-            image: {{ server.source.image|default('tcpcloud/aptly-publisher') }}
+            engine: {{ publisher.source.engine }}
+            {%- if publisher.source.engine == 'docker' %}
+            image: {{ publisher.source.image|default('tcpcloud/aptly-publisher') }}
             {%- endif %}
   {%- endif %}

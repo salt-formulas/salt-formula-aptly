@@ -1,0 +1,3 @@
+aptly:
+  publisher:
+    enabled: true
