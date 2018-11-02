@@ -16,6 +16,9 @@ publisher_python_pip:
 publisher_installed:
   pip.installed:
     - name: python-aptly
+    {%- if publisher.source.get('proxy', None) %}
+    - proxy: {{ publisher.source.get('proxy') }}
+    {%- endif %}
     - require:
       - pkg: publisher_python_pip
 

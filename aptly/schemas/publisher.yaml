@@ -31,3 +31,6 @@ properties:
       registry:
         description: Docker regirsty host for publisher image. Set if installation from docker is chosen
         type: string
+      proxy:
+        description: Proxy for accessing installation source (probably meaningful only for pip source)
+        type: string

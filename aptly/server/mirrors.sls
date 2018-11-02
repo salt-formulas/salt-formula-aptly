@@ -40,6 +40,27 @@ aptly_mirror_update_cron:
 
 {%- for mirror_name, mirror in server.mirror.iteritems() %}
 
+{%- if mirror.get('key_url', None) %}
+gpg_add_keys_{{ mirror_name }}_fromurl:
+  cmd.run:
+  - name: curl -Ls {{ mirror.get('key_url') }} | gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --import
+  - runas: {{ server.user.name }}
+  - cwd: {{ server.home_dir }}
+  - unless: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %} --list-public-keys $(curl -Ls {{ mirror.get('key_url') }} | gpg --with-colons | cut -f 5 -d ':')
+  {%- if server.secure %}
+  - require:
+    - cmd: import_gpg_priv_key
+    - cmd: import_gpg_pub_key
+  - require_in:
+    - cmd: aptly_{{ mirror_name }}_mirror
+  {%- endif %}
+  {%- if server.gpg.get('http_proxy', None) %}
+  - env:
+    - http_proxy: {{ server.gpg.get('http_proxy') }}
+    - https_proxy: {{ server.gpg.get('http_proxy') }}
+  {%- endif %}
+{%- endif %}
+
 {%- for gpgkey in mirror.get('gpgkeys', []) %}
 
 gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
@@ -47,7 +68,7 @@ gpg_add_keys_{{ mirror_name }}_{{ gpgkey }}:
   - name: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }}{% endif %} --keyserver {{ mirror.keyserver|default(server.gpg.keyserver) }} {% if server.gpg.get('http_proxy', None) %} --keyserver-options http-proxy={{ server.gpg.get('http_proxy') }} {% endif %} --recv-keys {{ gpgkey }}
   - runas: {{ server.user.name }}
   - cwd: {{ server.home_dir }}
-  - unless: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %} {% if server.gpg.get('http_proxy', None) %} --keyserver-options http-proxy={{ server.gpg.get('http_proxy') }} {% endif %} --list-public-keys {{gpgkey}}
+  - unless: gpg --no-tty {% if server.gpg.get('keyring', None) %} --no-default-keyring --keyring {{ server.gpg.keyring }} {% endif %}{% if server.gpg.get('homedir', None) %} --homedir {{ server.gpg.homedir }} {% endif %} --list-public-keys {{gpgkey}}
   {%- if server.secure %}
   - require:
     - cmd: import_gpg_priv_key
@@ -93,6 +114,10 @@ aptly_{{ mirror_name }}_mirror:
   {%- if server.source.engine == "docker" %}
   - require:
     - file: aptly_wrapper
+  {%- elif server.mirror_update.get('http_proxy', None) %}
+  - env:
+    - http_proxy: {{ server.mirror_update.get('http_proxy') }}
+    - https_proxy: {{ server.mirror_update.get('http_proxy') }}
   {%- endif %}
 
 aptly_{{ mirror_name }}_mirror_edit:
