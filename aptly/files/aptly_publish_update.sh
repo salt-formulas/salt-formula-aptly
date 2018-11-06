@@ -12,6 +12,7 @@ START_API=0
 RECREATE=0
 FORCE_OVERWRITE=0
 PUBLISHER_OPTIONS=""
+TIMEOUT=3600
 COMMAND=`basename $0`
 
 ## Functions ## ============================
@@ -48,6 +49,7 @@ Parameters:
     -c ... cleanup unused snapshots
     -r ... drop publish and create it again, the only way to add new components
     -f ... overwrite files in pool directory without notice
+    -t ... publisher timeout in seconds [3600]
 
 EOF
     exit
@@ -73,6 +75,7 @@ while [[ -n "$1" ]]; do
                 r) RECREATE=1 ;;
                 f) FORCE_OVERWRITE=1 ;;
                 u) URL=$2; shift ;;
+                t) TIMEOUT=$2; shift ;;
             esac
             r=$(expr substr $r 2 255)
         done
@@ -96,7 +99,7 @@ if [[ $FORCE_OVERWRITE -eq 1 ]]; then
      PUBLISHER_OPTIONS+=" --force-overwrite"
 fi
 
-aptly-publisher --timeout=1200 publish -v -c /etc/aptly/publisher.yaml --url ${URL} --architectures amd64 $PUBLISHER_OPTIONS
+aptly-publisher --timeout=${TIMEOUT} publish -v -c /etc/aptly/publisher.yaml --url ${URL} --architectures amd64 $PUBLISHER_OPTIONS
 
 if [[ $? -ne 0 ]]; then
     log_error "Aptly publisher failed."
