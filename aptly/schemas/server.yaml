@@ -101,6 +101,9 @@ properties:
       keyring:
         description: Keyring for GPG
         type: string
+      http_proxy:
+        description: HTTP proxy to use for keys download
+        type: string
   api:
     description: Parameters map for for APTLY API services
     type: object
