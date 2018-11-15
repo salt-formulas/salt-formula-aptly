@@ -106,7 +106,7 @@ aptly_addsnapshot_{{ mirror_name }}_{{ snapshot }}:
 
 aptly_{{ mirror_name }}_mirror:
   cmd.run:
-  - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter="{{ mirror.filter }}" {% endif %}{% if mirror.get('filter_with_deps') %}-filter-with-deps {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
+  - name: aptly mirror create {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter='{{ mirror.filter }}' {% endif %}{% if mirror.get('filter_with_deps') %}-filter-with-deps {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }} {{ mirror.source }} {{ mirror.distribution }} {{ mirror.components }}
   {%- if server.source.engine != "docker" %}
   - runas: {{ server.user.name }}
   {%- endif %}
@@ -122,15 +122,19 @@ aptly_{{ mirror_name }}_mirror:
 
 aptly_{{ mirror_name }}_mirror_edit:
   cmd.run:
-  - name: aptly mirror edit {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter="{{ mirror.filter }}" {% endif %}{% if mirror.get('filter_with_deps') %}-filter-with-deps {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }}
+  - name: aptly mirror edit {% if mirror.get('udebs', False) %}-with-udebs=true {% endif %}{% if mirror.get('sources', False) %}-with-sources=true {% endif %}{% if mirror.get('filter') %}-filter='{{ mirror.filter }}' {% endif %}{% if mirror.get('filter_with_deps') %}-filter-with-deps {% endif %}-architectures={{ mirror.architectures }} {{ mirror_name }}
   {%- if server.source.engine != "docker" %}
   - runas: {{ server.user.name }}
   {%- endif %}
-  - onlyif: 'aptly mirror show {{ mirror_name }} | grep -v "^Filter: {{ mirror.get('filter', '') }}$" | grep -q "^Filter: "'
+  - onlyif: 'aptly mirror show {{ mirror_name }} | grep -v "^Filter: {{ mirror.get('filter', '')|replace('$', '\$') }}$" | grep -q "^Filter: "'
   {%- if server.source.engine == "docker" %}
   - require:
     - file: aptly_wrapper
     - cmd: aptly_{{ mirror_name }}_mirror
+  {%- elif server.mirror_update.get('http_proxy', None) %}
+  - env:
+    - http_proxy: {{ server.mirror_update.get('http_proxy') }}
+    - https_proxy: {{ server.mirror_update.get('http_proxy') }}
   {%- endif %}
 
 {%- if mirror.get('update', False) == True %}
