@@ -31,14 +31,14 @@ doc:
         {%- if server.repo is defined %}
         repositories:
           value:
-            {%- for name, repo in server.repo.iteritems() %}
+            {%- for name, repo in server.repo.items() %}
             {{ name }}: "{{ repo.comment }}"
             {%- endfor %}
         {%- endif %}
         {%- if server.mirror is defined %}
         mirrors:
           value:
-            {%- for name, mirror in server.mirror.iteritems() %}
+            {%- for name, mirror in server.mirror.items() %}
             {{ name }}: "(distribution: {{ mirror.distribution }}, components: {{ mirror.components }})"
             {%- endfor %}
         {%- endif %}

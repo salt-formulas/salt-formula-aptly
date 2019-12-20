@@ -1,6 +1,6 @@
 {%- from "aptly/map.jinja" import server with context %}
 
-{%- for repo_name, repo in server.repo.iteritems() %}
+{%- for repo_name, repo in server.repo.items() %}
 
 {%- for gpgkey in repo.get('gpgkeys', []) %}
 

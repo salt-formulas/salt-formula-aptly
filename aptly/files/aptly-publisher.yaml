@@ -1,7 +1,7 @@
 {%- from "aptly/map.jinja" import server with context %}
 {%- if server.repo|default(False) %}
 repo:
-{%- for repo_name, repo in server.repo.iteritems() %}
+{%- for repo_name, repo in server.repo.items() %}
   {{ repo_name }}:
     component: {{ repo.publisher.component }}
     distributions:
@@ -21,7 +21,7 @@ repo: {}
 
 {%- if server.mirror|default(False) %}
 mirror:
-{%- for mirror_name, mirror in server.mirror.iteritems() %}
+{%- for mirror_name, mirror in server.mirror.items() %}
   {{ mirror_name }}:
     component: {{ mirror.publisher.component }}
     distributions:

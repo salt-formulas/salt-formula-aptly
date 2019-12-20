@@ -38,7 +38,7 @@ aptly_mirror_update_cron:
 
 {%- if server.mirror is defined %}
 
-{%- for mirror_name, mirror in server.mirror.iteritems() %}
+{%- for mirror_name, mirror in server.mirror.items() %}
 
 {%- for gpgkey in mirror.get('gpgkeys', []) %}
 
